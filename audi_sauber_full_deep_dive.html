@@ -1,0 +1,450 @@
+
+<style>
+  * { box-sizing: border-box; }
+  .nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; padding-top: 0.5rem; }
+  .nav-btn { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; transition: all .15s; }
+  .nav-btn.active { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .tl { position: relative; padding-left: 28px; }
+  .tl::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 1.5px; background: var(--color-border-secondary); }
+  .tl-item { position: relative; margin-bottom: 20px; }
+  .tl-dot { position: absolute; left: -24px; top: 6px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid; }
+  .dot-pre { background: var(--color-background-secondary); border-color: var(--color-border-secondary); }
+  .dot-blue { background: #E6F1FB; border-color: #185FA5; }
+  .dot-amber { background: #FAEEDA; border-color: #854F0B; }
+  .dot-red { background: #FCEBEB; border-color: #A32D2D; }
+  .dot-green { background: #EAF3DE; border-color: #3B6D11; }
+  .dot-teal { background: #E1F5EE; border-color: #0F6E56; }
+  .dot-purple { background: #EEEDFE; border-color: #534AB7; }
+  .tl-date { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); margin: 0 0 2px; }
+  .tl-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 3px; }
+  .tl-body { font-size: 12px; color: var(--color-text-secondary); margin: 0; line-height: 1.55; }
+  .tl-tag { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 10px; margin-top: 4px; }
+  .tag-deal { background: #E6F1FB; color: #0C447C; }
+  .tag-ops { background: #E1F5EE; color: #085041; }
+  .tag-crisis { background: #FCEBEB; color: #791F1F; }
+  .tag-org { background: #EEEDFE; color: #3C3489; }
+  .tag-finance { background: #FAEEDA; color: #633806; }
+  .tag-debut { background: #EAF3DE; color: #27500A; }
+
+  .entity-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
+  .entity-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+  .entity-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 2px; }
+  .entity-role { font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .entity-desc { font-size: 12px; color: var(--color-text-secondary); margin: 0; line-height: 1.55; }
+  .entity-pill { display: inline-block; font-size: 10px; padding: 1px 8px; border-radius: 10px; margin-top: 6px; }
+
+  .deal-phase { margin-bottom: 20px; }
+  .phase-hdr { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .phase-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+  .phase-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .phase-sub { font-size: 12px; color: var(--color-text-secondary); }
+  .detail-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 12px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-lbl { font-weight: 500; min-width: 110px; color: var(--color-text-primary); flex-shrink: 0; }
+  .detail-val { color: var(--color-text-secondary); line-height: 1.5; }
+  .why-box { background: var(--color-background-secondary); border-left: 3px solid #185FA5; padding: 10px 14px; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-bottom: 10px; }
+  .why-title { font-size: 12px; font-weight: 500; color: #0C447C; margin: 0 0 4px; }
+  .why-body { font-size: 12px; color: var(--color-text-secondary); margin: 0; line-height: 1.55; }
+  .risk-box { background: var(--color-background-danger); border-left: 3px solid var(--color-border-danger); padding: 10px 14px; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-bottom: 10px; }
+  .risk-title { font-size: 12px; font-weight: 500; color: var(--color-text-danger); margin: 0 0 4px; }
+  .risk-body { font-size: 12px; color: var(--color-text-secondary); margin: 0; line-height: 1.55; }
+  .metric-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin: 14px 0; }
+  .metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; text-align: center; }
+  .metric-val { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin: 0; }
+  .metric-lbl { font-size: 11px; color: var(--color-text-tertiary); margin: 2px 0 0; }
+  .sh { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin: 1.25rem 0 0.75rem; }
+  hr.div { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.25rem 0; }
+</style>
+
+<div style="padding: 0.5rem 0 1rem;">
+  <div class="nav">
+    <button class="nav-btn active" onclick="show('timeline')">Timeline</button>
+    <button class="nav-btn" onclick="show('why')">Why F1? Why now?</button>
+    <button class="nav-btn" onclick="show('entities')">All entities</button>
+    <button class="nav-btn" onclick="show('deal')">Deal anatomy</button>
+    <button class="nav-btn" onclick="show('sauber')">Sauber's history</button>
+    <button class="nav-btn" onclick="show('structure')">Current structure</button>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section active" id="timeline">
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 1.25rem;line-height:1.6;">Every major event in the Audi–Sauber deal from 2021 to 2026 debut.</p>
+
+    <div class="tl">
+      <div class="tl-item">
+        <div class="tl-dot dot-pre"></div>
+        <p class="tl-date">Late 2021</p>
+        <p class="tl-title">Andretti rejected, door opens for Audi</p>
+        <p class="tl-body">Sauber owner Finn Rausing (via Islero Investments / Longbow Finance) rejects a ~€350M offer from Michael Andretti to buy the team. Rausing demands job continuity at Hinwil and an extra €250M commitment — too much for Andretti. Audi, already in exploratory talks with multiple teams, moves to the front of the queue.</p>
+        <span class="tl-tag tag-deal">Background</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-pre"></div>
+        <p class="tl-date">Spring–Summer 2022</p>
+        <p class="tl-title">Audi evaluates three potential partners</p>
+        <p class="tl-body">Audi holds serious discussions with McLaren, Williams (via former VW WRC boss Jost Capito), and Sauber. McLaren talks collapse — reportedly too expensive and complex. Williams talks go nowhere. Sauber emerges as the favourite: a state-of-the-art wind tunnel Audi already knew well from WEC/LMP testing, clean ownership structure, manageable price.</p>
+        <span class="tl-tag tag-deal">Pre-deal</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-blue"></div>
+        <p class="tl-date">26 August 2022</p>
+        <p class="tl-title">Audi officially announces F1 entry</p>
+        <p class="tl-body">At the Belgian Grand Prix in Spa, Audi CEO Markus Duesmann announces the brand will enter Formula 1 in 2026 as a power unit manufacturer. No team partner named yet. Key stated rationale: 2026 regulation reset (50% electric power, sustainable fuels) aligns with Audi's EV transition strategy. VW Group's supervisory board signs off.</p>
+        <span class="tl-tag tag-deal">Announcement</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-blue"></div>
+        <p class="tl-date">26 October 2022</p>
+        <p class="tl-title">Sauber confirmed as works partner</p>
+        <p class="tl-body">Audi and Sauber jointly announce the partnership. Sauber will become the Audi factory team from 2026, running Audi power units. The Alfa Romeo naming arrangement (title sponsorship since 2018) will end after 2023. Sauber's 16-year Ferrari engine supply deal will end after 2025. Finn Rausing: Audi are the "best strategic partner." Fred Vasseur (Sauber TP at the time) calls it the "best option for the future."</p>
+        <span class="tl-tag tag-deal">Partnership signed</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-amber"></div>
+        <p class="tl-date">December 2022</p>
+        <p class="tl-title">Andreas Seidl appointed CEO of Sauber</p>
+        <p class="tl-body">Audi poaches Andreas Seidl from McLaren — where he had been Team Principal since 2019, overseeing McLaren's return to competitiveness. Seidl is formally hired by Sauber, but it is widely understood he was recruited specifically to lead the Audi F1 project from day one. Simultaneously, Fred Vasseur departs Sauber for Ferrari (replacing Mattia Binotto as Ferrari TP).</p>
+        <span class="tl-tag tag-org">Leadership</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-blue"></div>
+        <p class="tl-date">January 2023</p>
+        <p class="tl-title">Phase 1: Audi acquires minority stake (~25%)</p>
+        <p class="tl-body">Audi completes its first equity stake in Sauber Group. The exact percentage is not disclosed publicly but is widely reported as approximately 25%. The original deal structure: Audi would scale up incrementally — 25% in 2023, ~50% in 2024, ~75% in 2025 — with Finn Rausing (Islero Investments) retaining 25% indefinitely. Julius Seebach joins the Sauber board as Audi's official representative. Power unit development ramps up in Neuburg, Germany.</p>
+        <span class="tl-tag tag-deal">Stake acquired</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-red"></div>
+        <p class="tl-date">2024 season (all year)</p>
+        <p class="tl-title">Sauber crisis: 0 points all season</p>
+        <p class="tl-body">The C44 (branded as Kick Sauber) is the worst car on the grid. Valtteri Bottas and Zhou Guanyu score zero championship points across the entire season — the first time in years a team has been entirely pointless. Internal reports suggest the team is entirely focused on 2026 car development rather than fixing 2024. Binotto later says: "When I came in there was not only zero points, but really even no plans nor developments... Everything was only focused on 2026, but that was for me somehow a problem." Leadership instability accelerates.</p>
+        <span class="tl-tag tag-crisis">Performance crisis</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-blue"></div>
+        <p class="tl-date">8 March 2024</p>
+        <p class="tl-title">Phase 2: Audi announces 100% takeover</p>
+        <p class="tl-body">Audi's supervisory board (and VW Group's board) vote to abandon the incremental stake structure and move immediately to full ownership. The stated reason: "accelerating preparations for 2026." The real driver: Seidl had been pushing for Audi to do more, sooner — and Sauber's underperformance made the case. The deal had been agreed with Finn Rausing's Islero Investments. Andreas Seidl formally named Audi F1 Team CEO. Oliver Hoffmann steps down from Audi AG board to focus exclusively on the F1 project (later departs entirely).</p>
+        <span class="tl-tag tag-deal">100% takeover announced</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-purple"></div>
+        <p class="tl-date">1 August 2024</p>
+        <p class="tl-title">Mattia Binotto joins as COO/CTO</p>
+        <p class="tl-body">Binotto — former Ferrari Team Principal (2019–2022) — joins Sauber as Chief Operating Officer and Chief Technical Officer. His appointment is widely seen as a direct replacement for the Seidl-led structure. Seidl is effectively marginalised and departs within months. Alessandro Alunni Bravi remains as on-track Team Representative while the new leadership structure takes shape.</p>
+        <span class="tl-tag tag-org">Leadership overhaul</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-amber"></div>
+        <p class="tl-date">November 2024</p>
+        <p class="tl-title">QIA acquires ~30% minority stake</p>
+        <p class="tl-body">The Qatar Investment Authority — the sovereign wealth fund that also owns Paris Saint-Germain FC and holds 17% of VW Group — announces a "substantial minority" investment in Sauber Holding AG. Reported value: ~$360M for ~30% of the company. This implies a total team valuation of approximately $1.2 billion. The QIA deal is announced at the Qatar Grand Prix, giving it maximum visibility. Audi retains 70% ownership and full operational control.</p>
+        <span class="tl-tag tag-finance">QIA investment</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-green"></div>
+        <p class="tl-date">January 2025</p>
+        <p class="tl-title">100% takeover legally completed</p>
+        <p class="tl-body">Audi confirms the full acquisition of Sauber Holding AG is complete. Total price: ~€600M (~$650M). Sauber Motorsport AG, Sauber Holding AG and all subsidiaries now fully owned by Audi AG. QIA holds ~30% (acquired separately from Audi post-completion). Jonathan Wheatley's appointment as Team Principal is confirmed — he was to join in summer 2025 after gardening leave from Red Bull, but is released early. Alessandro Alunni Bravi departs.</p>
+        <span class="tl-tag tag-deal">Deal closes</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-red"></div>
+        <p class="tl-date">2025 season (first half)</p>
+        <p class="tl-title">Disastrous start — then remarkable recovery</p>
+        <p class="tl-body">Stake F1 Team Kick Sauber begins the 2025 season with the same fundamental car problems. Hulkenberg and Bortoleto score 0 points in the first 8 races. Criticism of the team's trajectory intensifies. Binotto is brutally honest internally. Then the new-spec package arrives and the car transforms. The team scores in 6 of the last 8 pre-summer races. Hulkenberg takes Sauber's first podium in decades at Silverstone 2025. Total 2025 season: 70 points, mid-field finish.</p>
+        <span class="tl-tag tag-crisis">Recovery</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-green"></div>
+        <p class="tl-date">1 April 2025</p>
+        <p class="tl-title">Wheatley joins early as Team Principal</p>
+        <p class="tl-body">Jonathan Wheatley — Red Bull's legendary Sporting Director for 18 years, the man who ran the pit wall for four consecutive Vettel championships and one Verstappen era — joins Sauber months ahead of schedule. Binotto negotiated his early release directly with Red Bull. James Key (ex-McLaren Technical Director) is also in place as TD. The Binotto–Wheatley–Key troika is now complete.</p>
+        <span class="tl-tag tag-org">Leadership complete</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-teal"></div>
+        <p class="tl-date">July 2025</p>
+        <p class="tl-title">Bicester Technology Centre opens</p>
+        <p class="tl-body">Sauber opens a new technology office in Bicester Motion, Oxfordshire — in the heart of "Motorsport Valley," the cluster of F1 engineering companies between Oxford and Silverstone. The facility is designed to tap into specialist talent that won't relocate to Switzerland. Third site alongside Hinwil (chassis) and Neuburg (power unit).</p>
+        <span class="tl-tag tag-ops">Infrastructure</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-teal"></div>
+        <p class="tl-date">Mid-2025</p>
+        <p class="tl-title">Revolut named title sponsor</p>
+        <p class="tl-body">European fintech giant Revolut signs a multi-year title partnership deal with the future Audi F1 team. The team will race as "Audi Revolut F1 Team" from 2026, with the car designation being "R26." Revolut also integrates into the team's financial operations and fan engagement platforms.</p>
+        <span class="tl-tag tag-finance">Commercial</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-green"></div>
+        <p class="tl-date">January 2026</p>
+        <p class="tl-title">Official Audi F1 Team launch</p>
+        <p class="tl-body">The team launches as the Audi Revolut F1 Team. Car revealed: the R26. Drivers: Nico Hulkenberg and Gabriel Bortoleto. Power unit: AFR 26 hybrid (V6 1.6L turbo + MGU-K, developed in Neuburg). Pre-season testing in Barcelona and Bahrain impresses — 357 laps in Bahrain test week. Bortoleto goes 10th fastest, Hulkenberg 12th, already closing on midfield pace.</p>
+        <span class="tl-tag tag-debut">Launch</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot dot-green"></div>
+        <p class="tl-date">March 2026</p>
+        <p class="tl-title">Debut: Australian Grand Prix</p>
+        <p class="tl-body">Audi races in F1 for the first time. Bortoleto qualifies 10th, Hulkenberg 11th. Bortoleto finishes 9th, scoring Audi's first ever F1 championship point. Hulkenberg hits a technical issue and cannot start. Wheatley departs as Team Principal in March 2026 — Binotto formally takes the TP role.</p>
+        <span class="tl-tag tag-debut">F1 debut</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY F1? WHY NOW? -->
+  <div class="section" id="why">
+    <p class="sh">The five strategic reasons Audi entered F1</p>
+    <div class="why-box">
+      <p class="why-title">1. The 2026 regulation reset — a once-in-a-generation window</p>
+      <p class="why-body">F1 introduced entirely new power unit rules in 2026: ~50% electric power (up from ~20%), deletion of the complex MGU-H component, and 100% sustainable fuels. This eliminated Mercedes', Ferrari's and Honda's decade-long engine advantage — every manufacturer starts roughly equal. Audi CEO Duesmann explicitly cited this: "I think it's perfect timing due to the new rules." For a new entrant, this is the only realistic moment to join without being 10 years behind on engine know-how.</p>
+    </div>
+    <div class="why-box">
+      <p class="why-title">2. EV strategy alignment — F1 as a technology lab</p>
+      <p class="why-body">Audi is transitioning to become a full EV manufacturer. The 2026 F1 power unit — nearly half electric — is directly relevant to Audi's road car programme. Audi's own words: "Formula 1 serves as a technology driver for both electric mobility and sustainable e-fuels — both topics highly relevant for production models." The MGU-K energy recovery system, battery management, and power deployment software all have road car parallels.</p>
+    </div>
+    <div class="why-box">
+      <p class="why-title">3. Brand transformation — reach younger, global audiences</p>
+      <p class="why-body">F1's audience has been transformed by Drive to Survive — US viewership tripled, female fanbase grew significantly, median fan age dropped. Audi has already invested in MLS (soccer), esports, and fashion collabs to reach younger demographics. F1 is the ultimate convergence platform. CCO Massimo Frascella: "We want to shape a brand capable of making a deep emotional connection... that inspires a global community." No other motorsport delivers that scale.</p>
+    </div>
+    <div class="why-box">
+      <p class="why-title">4. Budget cap makes F1 financially viable for the first time</p>
+      <p class="why-body">Before the 2021 cost cap (~$135M/year operational cap), F1 was a bottomless money pit. Mercedes spent $400M+/year during their dominant era. The cap fundamentally changed the ROI calculation. Audi CEO Duesmann directly cited the cost cap as a key factor: it "makes it very attractive for us to enter now." A structured investment with capped upside risk is very different from the open-ended spend of the pre-2021 era.</p>
+    </div>
+    <div class="why-box">
+      <p class="why-title">5. Motorsport DNA — the brand's identity is racing</p>
+      <p class="why-body">Audi's brand is built on motorsport. 13 Le Mans victories. DTM dominance. Dakar Rally. Formula E championship. The four-ring logo itself traces to Auto Union, which contested Grand Prix racing against Mercedes in the 1930s. F1 is the only major international series Audi has never won. For a brand that defines itself as "Vorsprung durch Technik" (advancement through technology), absence from the pinnacle of the sport is a gap in the story.</p>
+    </div>
+    <hr class="div">
+    <p class="sh">Why Sauber — not McLaren, Williams or a new team?</p>
+    <div class="detail-row"><span class="detail-lbl">McLaren talks failed</span><span class="detail-val">Audi held early discussions with McLaren but the deal collapsed — reportedly too expensive, too complicated ownership structure (Bahraini sovereign fund Mumtalakat holds a stake), and McLaren was unwilling to become a pure works team for Audi.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Williams went nowhere</span><span class="detail-val">Talks with Williams (via former VW WRC boss Jost Capito) also ended without a deal. Williams had recently been acquired by Dorilton Capital and wasn't available on terms Audi wanted.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Starting from scratch ruled out</span><span class="detail-val">Building a new F1 team from zero takes 5–7 years and requires FOM approval (notoriously difficult — Andretti spent 3 years fighting for a slot). Acquiring an existing team with a valid Concorde Agreement is the only fast path.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Sauber's specific assets</span><span class="detail-val">State-of-the-art wind tunnel in Hinwil (one of the best in F1, and Audi already rented it for WEC testing). Valid FOM Concorde Agreement. Clean, acquirable ownership via Islero Investments. Willingness to become a pure works team. Finn Rausing insisted on job protection — which Audi could guarantee.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Price was favourable</span><span class="detail-val">€600M total acquisition cost vs. competing teams valued at $1B–$6B. The deal was struck before F1 valuations fully inflated. QIA later paid $360M for just 30% — implying a $1.2B valuation by late 2024. Audi effectively bought in before the market appreciated.</span></div>
+  </div>
+
+  <!-- ENTITIES -->
+  <div class="section" id="entities">
+    <p class="sh">Seller side</p>
+    <div class="entity-grid">
+      <div class="entity-card">
+        <p class="entity-name">Finn Rausing</p>
+        <p class="entity-role">Majority seller / previous owner</p>
+        <p class="entity-desc">Swedish billionaire heir to the Tetra Pak packaging empire. Controls Islero Investments and Longbow Finance S.A. Purchased Sauber in 2016 from Peter Sauber for a reported sum that stabilised the team. Had previously rejected Andretti's €350M offer. Struck final deal with Audi for full exit via Islero Investments.</p>
+        <span class="entity-pill" style="background:#E1F5EE;color:#085041;">Exited Jan 2025</span>
+      </div>
+      <div class="entity-card">
+        <p class="entity-name">Peter Sauber</p>
+        <p class="entity-role">Founder (legacy)</p>
+        <p class="entity-desc">Founded PP Sauber AG in 1970 in his parents' garage. Built it from Swiss sports car racing to F1 in 1993. Sold controlling stake to Longbow Finance in 2016 after years of financial struggle. All Sauber cars (except BMW-era) named with the letter "C" — honouring his wife Christiane. No ownership role in current entity.</p>
+        <span class="entity-pill" style="background:#F1EFE8;color:#444441;">Historical</span>
+      </div>
+      <div class="entity-card">
+        <p class="entity-name">Islero Investments</p>
+        <p class="entity-role">Rausing's holding vehicle</p>
+        <p class="entity-desc">The investment entity through which Finn Rausing held his Sauber shares. Named after the Lamborghini Islero. Originally the majority shareholder in Sauber Holding AG. Transferred all shares to Audi AG as part of the full acquisition. Effectively dissolved its Sauber position at close in January 2025.</p>
+        <span class="entity-pill" style="background:#F1EFE8;color:#444441;">Exited</span>
+      </div>
+      <div class="entity-card">
+        <p class="entity-name">Longbow Finance S.A.</p>
+        <p class="entity-role">Swiss holding company</p>
+        <p class="entity-desc">The Swiss-based investment firm through which the Rausing family (and reportedly Stefan Persson and Karl-Johan Persson of H&M) originally acquired Sauber in 2016. Later restructured so Islero Investments was the direct shareholder vehicle for the Audi deal. Both entities functionally represent Finn Rausing's interests.</p>
+        <span class="entity-pill" style="background:#F1EFE8;color:#444441;">Historical structure</span>
+      </div>
+    </div>
+
+    <p class="sh" style="margin-top:1.25rem;">Buyer side</p>
+    <div class="entity-grid">
+      <div class="entity-card">
+        <p class="entity-name">Audi AG</p>
+        <p class="entity-role">Acquiring entity / 70% owner</p>
+        <p class="entity-desc">Premium automotive brand headquartered in Ingolstadt, Bavaria. Subsidiary of Volkswagen Group AG. Revenue ~€69B. The acquiring entity in all phases of the deal. Owns 70% of Sauber Holding AG post-QIA investment. Develops the F1 power unit through its own subsidiary AFR GmbH in Neuburg.</p>
+        <span class="entity-pill" style="background:#E6F1FB;color:#0C447C;">70% owner</span>
+      </div>
+      <div class="entity-card">
+        <p class="entity-name">Volkswagen Group AG</p>
+        <p class="entity-role">Ultimate parent / board approval</p>
+        <p class="entity-desc">Audi's parent company. The VW Group supervisory board had to formally approve both the initial partnership (2022), the 100% takeover decision (March 2024), and the QIA deal (Nov 2024). VW Group's financial position and internal politics (including a simultaneous Porsche F1 deal that fell through with Red Bull in 2022) shaped the entire project's pace.</p>
+        <span class="entity-pill" style="background:#EEEDFE;color:#3C3489;">Parent company</span>
+      </div>
+      <div class="entity-card">
+        <p class="entity-name">Qatar Investment Authority (QIA)</p>
+        <p class="entity-role">Financial partner / ~30% minority</p>
+        <p class="entity-desc">Qatar's sovereign wealth fund. Manages ~$500B in assets. Also owns PSG football club and holds 17% of VW Group. Acquired ~30% of Sauber Holding AG in November 2024 for ~$360M. Does not take operational control — purely financial. Its involvement serves multiple purposes: fresh capital injection, protection against VW Group budget cuts, and a geopolitical F1 footprint for Qatar.</p>
+        <span class="entity-pill" style="background:#FAEEDA;color:#633806;">~30% minority</span>
+      </div>
+      <div class="entity-card">
+        <p class="entity-name">Audi Formula Racing GmbH (AFR)</p>
+        <p class="entity-role">Power unit subsidiary</p>
+        <p class="entity-desc">A new company specifically founded by Audi for the F1 power unit programme. Based in Neuburg an der Donau, Bavaria — near Audi's main HQ. Has been developing the AFR 26 hybrid power unit (V6 1.6L turbo + MGU-K) since spring 2022. By December 2024, the complete powertrain ran for the first time in a full race simulation on the test bench. Stefan Dreyer is CTO of AFR.</p>
+        <span class="entity-pill" style="background:#E6F1FB;color:#0C447C;">Audi subsidiary</span>
+      </div>
+    </div>
+
+    <p class="sh" style="margin-top:1.25rem;">The acquired entities</p>
+    <div class="entity-grid">
+      <div class="entity-card">
+        <p class="entity-name">Sauber Holding AG</p>
+        <p class="entity-role">Parent holding company</p>
+        <p class="entity-desc">The Swiss holding company that owns all operating Sauber entities. This is the legal entity that Audi AG acquired 100% of. Registered in Switzerland. After completion in January 2025, Sauber Holding AG is wholly owned by Audi AG (70%) and QIA (30%).</p>
+        <span class="entity-pill" style="background:#EAF3DE;color:#27500A;">Now Audi-owned</span>
+      </div>
+      <div class="entity-card">
+        <p class="entity-name">Sauber Motorsport AG</p>
+        <p class="entity-role">F1 constructor entity</p>
+        <p class="entity-desc">The operating motorsport company and registered F1 constructor. Holds the FOM Concorde Agreement (the licence to race in F1). Based in Hinwil, canton of Zurich. Responsible for chassis design, manufacturing, and race operations. From 2026, operates as the Audi Revolut F1 Team, officially as "Audi Motorsport AG."</p>
+        <span class="entity-pill" style="background:#EAF3DE;color:#27500A;">F1 constructor</span>
+      </div>
+    </div>
+
+    <p class="sh" style="margin-top:1.25rem;">Key individuals</p>
+    <div class="entity-grid">
+      <div class="entity-card">
+        <p class="entity-name">Mattia Binotto</p>
+        <p class="entity-role">Team Principal (from March 2026)</p>
+        <p class="entity-desc">Italian. Former Ferrari Technical Director and Team Principal (resigned end 2022 after difficult season). Joined Sauber 1 Aug 2024 as COO/CTO. Effectively the project head from day one — overseeing both chassis and power unit integration. Took formal TP title after Wheatley's March 2026 departure.</p>
+      </div>
+      <div class="entity-card">
+        <p class="entity-name">Jonathan Wheatley</p>
+        <p class="entity-role">Team Principal (2025 – Mar 2026)</p>
+        <p class="entity-desc">British. Red Bull's Sporting Director for 18 years — the pit wall brain behind Vettel's 4 titles and Verstappen's run. Left Red Bull end-2024. Joined Sauber April 2025 (early release negotiated by Binotto). Departed March 2026 for undisclosed reasons. The fastest sporting director hire in F1 history in terms of prestige.</p>
+      </div>
+      <div class="entity-card">
+        <p class="entity-name">James Key</p>
+        <p class="entity-role">Technical Director</p>
+        <p class="entity-desc">British. Former McLaren Technical Director (sacked 2023 after poor car performance). Joined Sauber/Audi in 2023. Responsible for car design and aerodynamic development. Has extensive experience across Toro Rosso, Sauber (earlier stint), and McLaren.</p>
+      </div>
+      <div class="entity-card">
+        <p class="entity-name">Andreas Seidl</p>
+        <p class="entity-role">CEO (Jan 2023 – mid 2024)</p>
+        <p class="entity-desc">German. Former Porsche LMP1 chief and McLaren Team Principal. Was the key architect of the Audi–Sauber structure. Recruited to run the whole project but was effectively marginalised after Binotto's arrival in August 2024 and departed. His departure was a significant internal story — he had been the public face of the deal.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEAL ANATOMY -->
+  <div class="section" id="deal">
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 1.25rem;line-height:1.6;">The deal happened in three distinct phases, each with different motivations and financial logic.</p>
+
+    <div class="metric-row">
+      <div class="metric"><p class="metric-val">€600M</p><p class="metric-lbl">Total acquisition cost</p></div>
+      <div class="metric"><p class="metric-val">$1.2B</p><p class="metric-lbl">Post-QIA valuation</p></div>
+      <div class="metric"><p class="metric-val">70/30</p><p class="metric-lbl">Audi / QIA split</p></div>
+    </div>
+
+    <div class="deal-phase">
+      <div class="phase-hdr">
+        <div class="phase-num" style="background:#E6F1FB;color:#0C447C;">1</div>
+        <div><p class="phase-title">October 2022 — Partnership agreement</p><p class="phase-sub">No equity yet — a strategic intent document</p></div>
+      </div>
+      <div class="detail-row"><span class="detail-lbl">What was agreed</span><span class="detail-val">A works team partnership from 2026. Audi power unit to replace Ferrari supply. Full rebranding to Audi. Not a sale of shares — an agreement to negotiate a future acquisition structure.</span></div>
+      <div class="detail-row"><span class="detail-lbl">Why this structure</span><span class="detail-val">Regulatory requirements (FOM had to approve), complex due diligence on a Swiss entity, and VW Group governance requirements meant equity transfer had to follow a defined process.</span></div>
+      <div class="detail-row"><span class="detail-lbl">Finn Rausing's position</span><span class="detail-val">Agreed to sell a majority but wanted to retain ~25% to maintain Sauber identity and job protections at Hinwil. Also reportedly wanted a premium over the Andretti offer.</span></div>
+    </div>
+
+    <div class="deal-phase">
+      <div class="phase-hdr">
+        <div class="phase-num" style="background:#E6F1FB;color:#0C447C;">2</div>
+        <div><p class="phase-title">January 2023 — Phase 1 equity (~25% stake)</p><p class="phase-sub">First formal equity transfer; Rausing retains majority</p></div>
+      </div>
+      <div class="detail-row"><span class="detail-lbl">What transferred</span><span class="detail-val">Audi acquires approximately 25% of Sauber Group. Exact price not disclosed. Julius Seebach joins Sauber board as Audi's official representative. Sauber retains its name for 2023–2025 while racing under Stake/Kick Sauber branding.</span></div>
+      <div class="detail-row"><span class="detail-lbl">Original plan</span><span class="detail-val">Incremental: 25% (2023) → ~50% (2024) → 75% (2025), with Rausing retaining 25% permanently. This would have limited Audi's upfront financial exposure and given them time to assess the team.</span></div>
+      <div class="detail-row"><span class="detail-lbl">Why it changed</span><span class="detail-val">Sauber's 2024 performance collapse (0 points) made it clear the team needed decisive investment and restructuring that a minority shareholder couldn't force. Seidl pushed hard for Audi to move faster. The incremental model was too slow given the 2026 launch date.</span></div>
+    </div>
+
+    <div class="deal-phase">
+      <div class="phase-hdr">
+        <div class="phase-num" style="background:#E6F1FB;color:#0C447C;">3</div>
+        <div><p class="phase-title">March 2024 announced → January 2025 closed — 100% acquisition</p><p class="phase-sub">Full takeover of Sauber Holding AG</p></div>
+      </div>
+      <div class="detail-row"><span class="detail-lbl">Price paid</span><span class="detail-val">~€600M (~$650M) total for 100% of Sauber Holding AG. This figure is described as "in line with earlier paddock whispers" — the initial 75% stake was valued at ~$600M, so the full price tracks proportionally. Exact breakdown not publicly disclosed.</span></div>
+      <div class="detail-row"><span class="detail-lbl">What Audi acquired</span><span class="detail-val">100% of Sauber Holding AG, which owns: Sauber Motorsport AG (F1 constructor, Concorde Agreement holder, Hinwil base), plus all related IP, infrastructure, staff contracts and existing commercial agreements.</span></div>
+      <div class="detail-row"><span class="detail-lbl">Regulatory approval</span><span class="detail-val">VW Group and Audi AG supervisory boards both voted to approve the full takeover. Standard EU merger control review. No FIA/FOM approval required for ownership change (only the team's Concorde Agreement must be maintained).</span></div>
+      <div class="detail-row"><span class="detail-lbl">Rausing's exit terms</span><span class="detail-val">Islero Investments fully exits. Rausing is understood to have received job protection commitments for Hinwil staff — a condition he had demanded since the Andretti approach in 2021. Premium price vs. market (team was valued below $1B at initial deal; QIA's later investment implied $1.2B).</span></div>
+      <div class="detail-row"><span class="detail-lbl">QIA deal (separate)</span><span class="detail-val">Qatar Investment Authority acquired ~30% of Sauber Holding AG from Audi in November 2024, at a reported ~$360M. This was NOT part of the original acquisition — Audi sold down a stake post-completion to raise capital and bring in a strategic partner. Total post-QIA: Audi 70%, QIA 30%.</span></div>
+    </div>
+
+    <hr class="div">
+    <p class="sh">Deal valuation context</p>
+    <div class="detail-row"><span class="detail-lbl">Audi paid</span><span class="detail-val">~€600M for 100%  →  implied value ~$650M. Cheap relative to 2024/25 market.</span></div>
+    <div class="detail-row"><span class="detail-lbl">QIA implied value</span><span class="detail-val">$360M for 30%  →  team valued at $1.2B by Nov 2024. Already ~80% appreciation.</span></div>
+    <div class="detail-row"><span class="detail-lbl">McLaren value</span><span class="detail-val">>$4B in 2024–25. Audi couldn't afford and it wasn't for sale.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Alpine valuation</span><span class="detail-val">Otro Capital paid $220M for 24%  →  implied ~$920M. Renault's team.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Red Bull / Mercedes</span><span class="detail-val">$5–6B+ each. Entirely out of reach for a new entrant.</span></div>
+    <div class="risk-box" style="margin-top:14px;">
+      <p class="risk-title">Strategic risk: price paid vs. performance</p>
+      <p class="risk-body">Audi paid a fair price for the asset — but the asset was a struggling, demoralised team with 0 points in 2024 and leadership instability. The €600M bought infrastructure and a racing licence, not a competitive team. The real investment is in transformation: new personnel, new facilities (Bicester), new power unit (Neuburg), and time. Target: championship contention by 2030 — meaning 4+ seasons of development spend on top of the acquisition price.</p>
+    </div>
+  </div>
+
+  <!-- SAUBER HISTORY -->
+  <div class="section" id="sauber">
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 1.25rem;">Sauber's ownership and identity has changed more than almost any other team in F1 history — understanding this context is essential to understanding why the Audi acquisition happened the way it did.</p>
+
+    <div class="detail-row"><span class="detail-lbl">1970 — founded</span><span class="detail-val">Peter Sauber builds the C1 in his parents' garage in Zurich. Swiss sports car racing. Early cars sponsored by Red Bull (before it was a drinks brand).</span></div>
+    <div class="detail-row"><span class="detail-lbl">1993 — F1 entry</span><span class="detail-val">Debuts at South African GP. Works Mercedes engine deal for 1993–94. Finishes 8th in constructors' championship both years.</span></div>
+    <div class="detail-row"><span class="detail-lbl">1995 — first podium</span><span class="detail-val">First F1 podium at Italian GP with Frentzen (3rd). Switches to Ford engines, then Petronas-branded Ferrari engines from 1997.</span></div>
+    <div class="detail-row"><span class="detail-lbl">2006–09 — BMW era</span><span class="detail-val">BMW acquires majority stake. Becomes BMW Sauber. Best-ever results: 2nd in constructors' 2007, 3rd in 2008 (including Kubica's sole win at Canadian GP). BMW exits after 2009 season — recession, ROI doubts. Peter Sauber buys team back.</span></div>
+    <div class="detail-row"><span class="detail-lbl">2010–16 — independent, struggling</span><span class="detail-val">Returns as Sauber F1 Team with customer Ferrari engines. Serially underfunded. Near-collapse 2014–15: couldn't pay driver salaries, multiple legal disputes. Finishes as low as 10th in constructors' championship.</span></div>
+    <div class="detail-row"><span class="detail-lbl">2016 — Longbow Finance acquires</span><span class="detail-val">Peter Sauber and Monisha Kaltenborn sell all shares to Longbow Finance S.A. (Finn Rausing / Persson families). Pascal Picci becomes chairman. Stabilises the team financially. Cancels a confirmed Honda engine deal, sticks with Ferrari.</span></div>
+    <div class="detail-row"><span class="detail-lbl">2018–23 — Alfa Romeo era</span><span class="detail-val">Stellantis brand Alfa Romeo takes title sponsorship. Team races as Alfa Romeo Racing (2019–21), Alfa Romeo F1 Team (2022–23). Best finish: 6th in constructors' 2012 (pre-Alfa era), 6th in 2022 with Bottas/Zhou. Alfa sponsorship ends as Audi takes over.</span></div>
+    <div class="detail-row"><span class="detail-lbl">2024–25 — Kick Sauber</span><span class="detail-val">Racing as Stake F1 Team Kick Sauber. Worst season in memory (0 pts in 2024). Remarkable 2025 recovery (70 pts, mid-field). Transitions to become Audi's works team from 2026.</span></div>
+    <div class="detail-row"><span class="detail-lbl">2026 — becomes Audi</span><span class="detail-val">The Sauber name disappears from the F1 entry after 33 years. The team entity Sauber Motorsport AG still exists but races as the Audi Revolut F1 Team. The last independent Sauber era closes.</span></div>
+  </div>
+
+  <!-- CURRENT STRUCTURE -->
+  <div class="section" id="structure">
+    <p class="sh">Corporate ownership (as of Jan 2026)</p>
+    <div class="detail-row"><span class="detail-lbl">Audi AG</span><span class="detail-val">70% of Sauber Holding AG. Full operational control. Subsidiary of Volkswagen Group AG.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Qatar Investment Authority</span><span class="detail-val">~30% of Sauber Holding AG. Financial partner, no operational control. Invested ~$360M (Nov 2024).</span></div>
+    <div class="detail-row"><span class="detail-lbl">Sauber Holding AG</span><span class="detail-val">Swiss holding company. Owns 100% of Sauber Motorsport AG and associated entities.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Audi Formula Racing GmbH</span><span class="detail-val">Separately owned Audi subsidiary in Neuburg. Develops the power unit. Supplies it to the team.</span></div>
+
+    <p class="sh">Three operating sites</p>
+    <div class="detail-row"><span class="detail-lbl">Hinwil, Switzerland</span><span class="detail-val">Original Sauber factory. Chassis design, manufacturing, race operations, simulator. State-of-the-art wind tunnel. ~600 employees. The heartbeat of the team.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Neuburg an der Donau</span><span class="detail-val">Audi's motorsport competence centre in Bavaria. Home of Audi Formula Racing GmbH. Power unit development, manufacturing and dyno testing. Expanded significantly since 2022. 300+ engineers.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Bicester, UK</span><span class="detail-val">Sauber Motorsport Technology Centre opened July 2025. Located in "Motorsport Valley" — the Oxford-Silverstone cluster. Taps UK F1 engineering talent pool. Supports aero and systems engineering that won't relocate to Switzerland.</span></div>
+
+    <p class="sh">Commercial partnerships</p>
+    <div class="detail-row"><span class="detail-lbl">Revolut</span><span class="detail-val">Title partner and naming rights. "Audi Revolut F1 Team." European fintech unicorn. Multi-year deal signed mid-2025.</span></div>
+    <div class="detail-row"><span class="detail-lbl">bp</span><span class="detail-val">Exclusive sustainable fuel partner since 2022. Develops the 100% sustainable fuel that powers the AFR 26 power unit.</span></div>
+
+    <p class="sh">2026 team — the racing side</p>
+    <div class="detail-row"><span class="detail-lbl">Car</span><span class="detail-val">R26 — named in Audi motorsport tradition (Le Mans R8, R10, R18). "R" = racing. "26" = 2026 model year.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Power unit</span><span class="detail-val">AFR 26 hybrid. V6 1.6L turbo + MGU-K (no MGU-H under 2026 rules). Nearly 50% electric power. Runs on bp sustainable fuel. Entirely developed and built in Neuburg.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Nico Hulkenberg</span><span class="detail-val">German. 250+ GPs. First F1 podium at Silverstone 2025. Experience, German identity aligned with brand. Multi-year contract.</span></div>
+    <div class="detail-row"><span class="detail-lbl">Gabriel Bortoleto</span><span class="detail-val">Brazilian. 21 years old. 2024 F2 and F3 champion. Signed by McLaren, loaned/transferred to Sauber. Scored Audi's first ever F1 point at Australian GP 2026 (P9).</span></div>
+    <div class="detail-row"><span class="detail-lbl">Target</span><span class="detail-val">Midfield competitive by 2027–28. Championship contention by 2030.</span></div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const map = {timeline:0,why:1,entities:2,deal:3,sauber:4,structure:5};
+  document.querySelectorAll('.nav-btn')[map[id]].classList.add('active');
+}
+</script>
